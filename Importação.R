@@ -68,8 +68,6 @@ importar_tabelas <- function(path, sheet){
 }
 
 
-# lê todas as abas e todos os arquivos
-
 COFOG <- purrr::map(path, importar_tabelas) %>%
   purrr::set_names(ano) %>% 
   bind_rows()
