@@ -3,11 +3,8 @@
 
 library(purrr)
 library(dplyr)
-library(stringr)
 library(readxl)
 library(tidyr)
-library(ggplot2)
-library(readr)
 
 #### Download arquivos ####
 
@@ -59,19 +56,26 @@ path <- paste0(tempdir(), ano)
 
 #### lendo sheets ####
 
-importar_tabelas <- function(path, sheet){
+importar_tabelas <- function(path){
   
   readxl::read_excel(path,
                      sheet     = "Despesa Competencia - COFOG",
-                     col_names = FALSE)
-  
-}
+                     col_names = TRUE)
+  }
 
 
 COFOG <- purrr::map(path, importar_tabelas) %>%
-  purrr::set_names(ano) %>% 
-  bind_rows()
+  purrr::set_names(ano)
 
-colnames(COFOG) <- 
+### correcao base 2012 coluna 3 ###
+
+# compatibilizar double com character
+
+for(i in as.character(ano)){
+  COFOG[[i]][["Natureza Despesa Detalhada"]] <- as.character(COFOG[[i]][["Natureza Despesa Detalhada"]])
+  
+}
+
+COFOG <- COFOG %>% bind_rows()
 
 
