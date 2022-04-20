@@ -78,4 +78,3 @@ for(i in as.character(ano)){
 
 COFOG <- COFOG %>% bind_rows()
 
-
