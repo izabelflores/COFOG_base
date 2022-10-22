@@ -1,15 +1,19 @@
+#### Importação dados COFOG ####
 
-#### library #####
+
+# library
 
 library(purrr)
 library(dplyr)
-library(readxl)
+library(stringr)
 library(tidyr)
+library(readr)
 
-#### Download arquivos ####
+## Download arquivos
 
 
 # montar urls
+
 
 sufixos_1 <-
   c(
@@ -23,15 +27,16 @@ sufixos_1 <-
     "6d6847c3-fc1d-4eb4-855d-aa9030fcfd47", #2017
     "9664e7ed-6a43-4ccb-8cdd-922e9b8dd62c", #2018
     "65d4cdb9-02e9-4b7c-b59e-5122b2835055", #2019
-    "b258f856-b80e-4cad-a4bb-dc570b7f5659"  #2020
+    "b258f856-b80e-4cad-a4bb-dc570b7f5659", #2020
+    "83b16dfe-9fbb-44ea-8b89-1f8d1b5d78e3"  #2021
     )
 
-ano <- seq(2010, 2020)
+ano <- 2010:2021
 
 
 url_bases <- paste0(
   "https://www.tesourotransparente.gov.br/ckan/dataset/22d13d17-bf69-4a1a-add2-25cc1e25f2d7/resource/",
-  sufixos_1, "/download/Base-COFOG-", ano, "-TT.xlsx"
+  sufixos_1, "/download/Base-COFOG-", ano, ".csv"
 ) %>%
   as.list() %>%
   set_names(ano)
@@ -58,23 +63,10 @@ path <- paste0(tempdir(), ano)
 
 importar_tabelas <- function(path){
   
-  readxl::read_excel(path,
-                     sheet     = "Despesa Competencia - COFOG",
-                     col_names = TRUE)
-  }
+  read.csv2(path)
+}
 
 
 COFOG <- purrr::map(path, importar_tabelas) %>%
-  purrr::set_names(ano)
-
-### correcao base 2012 coluna 3 ###
-
-# compatibilizar double com character
-
-for(i in as.character(ano)){
-  COFOG[[i]][["Natureza Despesa Detalhada"]] <- as.character(COFOG[[i]][["Natureza Despesa Detalhada"]])
-  
-}
-
-COFOG <- COFOG %>% bind_rows()
-
+  purrr::set_names(ano) %>% 
+  bind_rows()
